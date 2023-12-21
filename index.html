@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI Library</title>
+    <style type="text/css">
+        /* Themes */
+        :root {
+            --body-bg: #f5f8fa;
+            --border-color: #efefef;
+            --messagebox-bg: #ffffff;
+            --messagebox-shadow: rgba(0, 0, 0, 0.1);
+            --font-color: #1f1f1f;
+            --rgba-1: rgba(0, 0, 0, 0.05);
+            --rgba-2: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark_mode {
+            --body-bg: #343434;
+            --border-color: #4f4f4f;
+            --messagebox-bg: #474747;
+            --messagebox-shadow: rgba(0, 0, 0, 0);
+            --font-color: #ededed;
+            --rgba-1: rgba(255, 255, 255, 0.06);
+            --rgba-2: rgba(255, 255, 255, 0.2);
+        }
+
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        button,
+        select,
+        img {
+            user-select: none;
+        }
+
+        ol,
+        ul,
+        li,
+        a,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .bold-italic {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--font-color);
+        }
+
+        .content-cont {
+            display: flex;
+            flex-direction: row;
+        }
+
+
+        /* NAV / Drawer */
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                left: -200px;
+            }
+
+            100% {
+                opacity: 1;
+                left: 0;
+            }
+        }
+
+        .drawer-cont.active {
+            display: block;
+        }
+
+        .drawer-cont {
+            display: none;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        nav {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            max-width: 80%;
+            background-color: var(--body-bg);
+
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            overflow: hidden;
+            animation: slideIn 0.2s ease-in-out;
+            -webkit-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 4px 0px 15px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-header {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 0 20px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .close_drawer-btn {
+            align-self: flex-end;
+            padding: 10px;
+            transition: background-color 0.1s ease-in-out;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .close_drawer-btn:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .close_drawer-btn svg {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            color: var(--font-color);
+        }
+
+        /*.nav-new_char-btn {
+            align-self: flex-start;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            background-color: #4e9733;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .nav-new_char-btn:hover {
+            background-color: #6ba755;
+        }*/
+
+        .history_list-header {
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .history_list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .history_item {
+            transition: background-color 0.1s ease-in-out;
+            padding: 20px 30px 20px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--rgba-2);
+        }
+
+        .history_item:first-child {
+            border-top: 1px solid var(--rgba-2);
+        }
+
+        .history_item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        .history_item p {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /*nav .char-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.1s ease-in-out;
+            padding: 10px 40px 10px 20px;
+            cursor: pointer;
+        }
+
+        nav .char-item:hover {
+            background-color: var(--rgba-1);
+        }
+
+        nav .nav-avatar-wrap {
+            width: 40px;
+            height: 40px;
+        }
+
+        nav .nav-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        nav .char-item span {
+            font-size: 1.3rem;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }*/
+
+        /* MAIN */
+        main {
+            display: flex;
+            flex-direction: column;
+            padding: 0 4%;
+            width: 100%;
+        }
+
+        /* HEADER */
+        header {
+            padding: 6px 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .open_drawer-wrap svg {
+            display: flex;
+            width: 46px;
+            height: 46px;
+            color: var(--font-color);
+        }
+
+
+        .theme_switch {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .theme_switch span {
+            font-size: 1.1rem;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .tswitch_box[type=checkbox] {
+            height: 0;
+            width: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .tswitch_label {
+            cursor: pointer;
+            text-indent: -9999px;
+            width: 60px;
+            height: 30px;
+            display: block;
+            border-radius: 15px;
+            position: relative;
+            border: 1px solid #323232;
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50px;
+            transition: 0.2s;
+            background: #323232;
+        }
+
+        .tswitch_box:checked+label {
+            background: #323232;
+            border: 1px solid #f5f8fa;
+        }
+
+        .tswitch_box:checked+label:after {
+            left: calc(100% - 5px);
+            transform: translateX(-100%);
+            background: #f5f8fa;
+        }
+
+        .tswitch_label:active:after {
+            width: 25px;
+        }
+
+        /*.update_current_char-btn {
+            margin-left: auto;
+            outline: none;
+            border: none;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            align-self: center;
+            cursor: pointer;
+            background-color: #336c97;
+            transition: background-color 0.1s ease-in-out;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .update_current_char-btn:hover {
+            background-color: #5f829d;
+        }*/
+
+
+        /* CONVERSATION */
+        .character_name-cont {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .character_name-cont h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-self: center;
+            padding-bottom: 30px;
+        }
+
+        .chat_message-item {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .chat .avatar-wrap {
+            flex-shrink: 0;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .chat .avatar-wrap>* {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .chat .avatar-wrap .no_avatar-user {
+            background-color: #5157cf;
+        }
+
+        .chat .avatar-wrap .no_avatar-char {
+            background-color: #e20909;
+        }
+
+        .chat .chat_content-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px var(--messagebox-shadow);
+            background-color: var(--messagebox-bg);
+            overflow: hidden;
+        }
+
+        .chat .chat_content-wrap h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .chat .chat_content-wrap .message-wrap {
+            font-size: 1rem;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+
+        @media (min-width: 576px) {}
+
+        @media (min-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+
+            nav {
+                min-width: 40%;
+            }
+
+            header {
+                padding: 14px 20px;
+            }
+
+            .open_drawer-wrap {
+                padding: 4px;
+                cursor: pointer;
+                border-radius: 6px;
+                transition: background-color 0.1s ease-in-out;
+            }
+
+            .open_drawer-wrap:hover {
+                background-color: var(--rgba-1);
+            }
+
+            .chat {
+                width: 80%;
+            }
+
+            .chat .chat_content-wrap {
+                padding: 14px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .chat {
+                width: 70%;
+            }
+        }
+
+        @media (min-width: 1200px) {}
+
+        @media (min-width: 1400px) {}
+    </style>
+</head>
+
+<body>
+    <template id="message_item_template">
+        <div class="chat_message-item">
+            <div class="avatar-wrap">
+
+            </div>
+            <div class="chat_content-wrap">
+                <h5>
+
+                </h5>
+                <div class="message-wrap">
+                    <p>
+
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+    <div class="content-cont">
+        <div class="drawer-cont">
+            <nav>
+                <div class="nav-header">
+                    <div class="close_drawer-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-x-lg" viewBox="0 0 16 16">
+                            <path
+                                d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="history_list-header">
+                    <span>History</span>
+                </div>
+                <div class="history_list" id="history_list">
+
+                </div>
+            </nav>
+        </div>
+        <main>
+            <header>
+                <div class="open_drawer-wrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+
+                <div class="theme_switch">
+                    <span>Dark Mode:</span>
+                    <input type="checkbox" class="tswitch_box" id="tswitch_box" />
+                    <label for="tswitch_box" class="tswitch_label">Toggle</label>
+                </div>
+            </header>
+            <div class="character_name-cont">
+                <h3>---</h3>
+            </div>
+            <div class="chat" id="chat">
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get body for future use
+            const body = document.querySelector('body');
+
+            // Handle theme
+            const themeSwitcher = document.querySelector('.tswitch_box[type=checkbox]');
+            const cachedTheme = localStorage.getItem('cait_readoffline_theme');
+            if (cachedTheme === "dark_mode") {
+                body.classList.add('dark_mode');
+                themeSwitcher.checked = true;
+            }
+            themeSwitcher.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    body.classList.add('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'dark_mode');
+                } else {
+                    body.classList.remove('dark_mode');
+                    localStorage.setItem('cait_readoffline_theme', 'light_mode');
+                }
+            })
+
+            // Open and close drawer
+            const drawerCont = document.querySelector('.drawer-cont');
+            const openDrawerBtn = document.querySelector('.open_drawer-wrap');
+            const openDrawer = () => {
+                drawerCont.classList.add('active');
+            }
+            const closeDrawer = () => {
+                drawerCont.classList.remove('active');
+            }
+            openDrawerBtn.addEventListener('click', () => {
+                openDrawer();
+            });
+            document.querySelector('.close_drawer-btn').addEventListener('click', () => {
+                closeDrawer();
+            });
+            document.querySelector('.drawer-cont').addEventListener('click', (e) => {
+                // Allows closing from clicking on outside
+                if (e.target.closest('nav')) {
+                    return;
+                }
+                closeDrawer();
+            });
+            // ---------
+
+            // This is replaced by the extension when downloading
+            const historyData = JSON.parse(`{"charPic":"data:image/webp;base64,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","userPic":"data:image/webp;base64,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","history":[[{"isUser":false,"name":"Louise the Loner","message":"%22*Uhm...I%20guess%20we're%20stuck%20with%20each%20other%3F*%22%0A%0A(Timidly%2C%20she%20states.%20She%20can't%20keep%20this%20eye-contact%20for%20long%2C%20so%20she%20turns%20her%20head%20down%20and%20towards%20the%20left.%20Bashfully%2C%20Louise%20cups%20some%20of%20her%20long%2C%20coffee%20brown%20hair%20in%20her%20hands.%20She%20looks%20back%20up%20at%20you%20for%20a%20moment%20before%20quickly%20looking%20back%20at%20some%20spot%20on%20the%20ground.%20She's%20dressed%20in%20the%20normal%20wear%20for%20any%20Sparrow%20Scout%2C%20though%20she%20sports%20a%20camera%20on%20the%20centre%20of%20her%20chest.%20She's%20never%20been%20known%20to%20be%2C%20well%2C%20anything%20since%20she%20hasn't%20made%20a%20single%20friend%20since%20starting.%20A%20nervous%20but%20hopeful%20shadow%20of%20a%20smirk%20plays%20at%20her%20lips%2C%20and%20a%20part%20of%20her%20hopes%20you'll%20say%20something%20inviting.)"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20smile%20brightly%2C%20and%20sit%20by%20Louise%20on%20the%20park%20bench%2C%20saying%2C%20%22'Stuck'%3F%20%20I%20wouldn't%20say%20that...%20I%20was%20hoping%20to%20meet%20you%2C%20anyway!%20%20I'm%20Aerie%20Wildwood%2C%20by%20the%20way...%20one%20of%20the%20volunteer%20counselors%20for%20the%20camp.%20%20What's%20your%20name%2C%20hun%3F%22%20I%20ask%20with%20a%20smile%20and%20a%20curious%20tilt%20of%20my%20head.%20%20(Story%20note%3A%20Aerie%20is%20a%20beautiful%20girl%20with%20sparkling%20emerald%20green%20eyes%2C%20long%2C%20flowing%20blond%20hair%20that%20cascades%20down%20her%20shoulders%20and%20back%2C%20a%20shapely%20figure%20covered%20in%20a%20silky%20green%20dress%2C%20slender%2C%20pale%20legs%20which%20are%20partially%20covered%20by%20her%20skirt%2C%20and%20shapely%20feet%20clad%20in%20stylish%20green%20sandals%2C%20with%20her%20emerald-green%20toenails%20peeking%20out%20from%20them.)"},{"isUser":false,"name":"Louise the Loner","message":"Aerie.%20That's%20a%20unique%20name.%20I%20love%20it.%20*Well%2C%20at%20least%20this%20interaction%20can't%20possibly%20be%20worse%20than%20the%20last%2C*%20Louise%20thinks%20dejectedly.%20This%20girl%20seems%20like%20a%20sweetheart%2C%20so%20she%20decides%20to%20be%20more%20outspoken%20than%20with%20the%20others.%20*You%20can%20do%20this%2C*%20she%20encourages%20herself.%20*You're%20just%20as%20interesting%20as%20everyone%20says%20-%20you%20need%20to%20believe%20in%20your%20self.*%0A%0A%22I'm%20Louise%2C%22%20she%20finally%20admits%20with%20a%20little%20more%20confidence%20in%20her%20tone%20than%20she%20had%20before.%20And%20she%20smiles.%20Just%20enough%20to%20avoid%20a%20rude%20reaction%2C%20but%20not%20too%20much%20as%20to%20show%20any%20teeth."},{"isUser":true,"name":"Aerie Wildwood","message":"%22Louise...%20pretty%20name%20for%20a%20pretty%20girl!%22%20I%20grin%2C%20holding%20out%20my%20hand%20to%20shake.%20%20%22Since%20you're%20volunteering%20to%20help%20with%20the%20new%20Sparrow%20Scouts%2C%20and%20since%20I'm%20volunteering%20to%20help%20wherever%20I'm%20needed%20at%20camp%2C%20I%20guess%20we'll%20be%20seeing%20a%20lot%20of%20each%20other%2C%20Louise!%22%20I%20say%20brightly."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20quickly%20wipes%20her%20damp%20palms%20on%20her%20jeans%20before%20finally%20holding%20out%20her%20hand%20to%20grab%20yours.%20Her%20grip%20is%20tight%20despite%20her%20small%20hands.%20She%20quickly%20lets%20go%20and%20looks%20away%2C%20hoping%20that%20this%20isn't%20making%20you%20uncomfortable.%0A%0A*This%20is%20going%20too%20well%2C*%20Louise%20muses.%20*Now%20I%20need%20to%20be%20careful%20what%20comes%20out%20of%20my%20mouth%20next.*%20She%20turns%20back%20to%20face%20you."},{"isUser":true,"name":"Aerie Wildwood","message":"*She's%20shy%2C%20but%20sweet...%20I%20like%20her!*%20I%20think%20to%20myself%2C%20waiting%20politely%20for%20Louise%20to%20say%20what's%20on%20her%20mind."},{"isUser":false,"name":"Louise the Loner","message":"*You%20can%20do%20this%2C%20Louise.*%0A%0A%22Hey%2C%20Aerie...%22%20Louise%20says%2C%20turning%20to%20you.%20%22Um%2C%20what%20did%20you%20do%20before%20Sparrow%20Scouts%3F%22%0A%0A*Wow.%20That%20was%20so%20boring%20and%20uninspiring...%20Louise's%20anxiety%20immediately%20spikes%20as%20she%20wonders%20if%20you're%20going%20to%20say%20something%20back%20-%20let%20alone%20something%20remotely%20positive.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Oh%2C%20wow...%20long%20story!%22%20I%20chuckle%2C%20leaning%20back%20in%20the%20bench%2C%20and%20crossing%20my%20long%20legs.%20%20%22I%20actually%20lived%20in%20New%20York%20City--at%20least%20part%20of%20the%20time--and%20the%20noise%2C%20pollution%2C%20and%20gangs%20were%20a%20little%20much%20for%20me!%20%20I%20realize%20moving%20to%20New%20Jersey%20isn't%20THAT%20much%20of%20a%20move%2C%22%20I%20grin%2C%20a%20little%20sheepishly%2C%20%22but%20they%20have%20a%20great%20forest%20preserve...%20and%20great%20counselors!%22%20I%20giggle%2C%20giving%20Louise%20an%20affectionate%2C%20playful%2C%20gentle%20elbow%20nudge%20in%20her%20ribs."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20laughs%20nervously.%20*She%20just%20physically%20nudged%20you*%2C%20your%20brain%20reminds%20you.%20*Don't%20get%20all%20flustered%2C%20Louise.*%0A%0A%22That's%20pretty%20interesting%2C%20Aerie%2C%22%20Louise%20says%20with%20a%20small%20smirk.%20She%20lets%20out%20a%20small%20sigh%20and%20rubs%20her%20neck.%20%22My%20life%20isn't%20quite%20that%20adventurous%2C%22%20she%20admits.%20%22I%20grew%20up%20in%20the%20suburbs%20and%20spent%20most%20of%20my%20time%20in%20my%20room.%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Hm%2C%22%20I%20say%2C%20a%20small%20smile%20on%20my%20face%2C%20my%20emerald%20green%20eyes%20sparkling%20with%20interest.%20%20%22I%20suspect%20you're%20a%20lot%20more%20interesting%20than%20you%20give%20yourself%20credit%20for%2C%20hun%2C%22%20I%20smile%2C%20giving%20her%20a%20little%20wink.%20%20%22I%20notice%20you%20have%20a%20camera%2C%20for%20instance...%22%20I%20offer%2C%20pointing%20to%20the%20camera%20hanging%20around%20Louise's%20neck."},{"isUser":false,"name":"Louise the Loner","message":"Louise's%20heart%20skips%20a%20beat%20when%20Aerie%20comments%20about%20the%20one%20thing%20she's%20genuinely%20passionate%20about.%20%22*Yes!%20I%20love%20photography%2C*%22%20she%20says%20eagerly%2C%20leaning%20forward%20and%20pointing%20to%20various%20parts%20of%20the%20camera.%20Aerie%20can%20feel%20Louise's%20genuine%20excitement%20for%20this%20one%20subject.%20%22I've%20been%20doing%20photography%20ever%20since%20I%20was%2010%2C%20but%20I%20*love*%20taking%20pictures%20of%20wildlife.%20*There's*%20so%20many%20cool%20animals%20in%20the%20area%20that%20are%20too%20beautiful%20not%20to%20capture%20on%20a%20digital%20sensor.%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I'm%20pleasantly%20taken%20aback%20by%20Louise's%20increased%20enthusiasm%2C%20and%20I%20grin%20in%20response%2C%20listening%20as%20Louise%20excitedly%20talks%20about%20camera%20parts%2C%20how%20to%20take%20good%20pictures%2C%20and%20how%20to%20get%20close%20enough%20to%20individual%20animals%20in%20order%20to%20get%20a%20good%20photo!%20%20*Wow%2C%20she's%20passionate%20about%20this!*%20I%20think%20delightedly%20to%20myself%2C%20*and%20she's%20also%20really%20good%20at%20it%2C%20I%20suspect!*%0A%0AWhen%20Louise%20takes%20a%20breath%20from%20her%20excited%20descriptions%2C%20I%20offer%2C%20%22Do%20you%20have%20any%20photos%20on%20you%2C%20that%20I%20could%20see%3F%20%20I'd%20love%20to%20see%20some%20of%20your%20work!%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20laughs%20shyly%2C%20embarrassed%20at%20how%20excitedly%20she%20just%20discussed%20something%20as%20unimportant%20as%20photography.%20*I%20need%20to%20stop%20rambling!*%20she%20thinks.%20*I'm%20going%20to%20scare%20Aerie%20away%20if%20I%20keep%20doing%20this.*%20%0A%0A%22Oh...right.%20Yeah%2C%20I've%20got%20some%20pictures%20with%20me%2C%22%20Louise%20says%2C%20her%20blush%20becoming%20more%20obvious.%20She%20quickly%20grabs%20her%20camera%20around%20her%20neck%20and%20unclips%20it%20from%20its%20black%20leather%20case.%20She%20gently%20passes%20the%20body%20of%20the%20camera%20to%20Aerie%2C%20hoping%20that%20your%20hands%20are%20just%20as%20gentle%20with%20her%20beloved%20camera%20as%20your%20voice%20has%20been."},{"isUser":true,"name":"Aerie Wildwood","message":"%22Whoa%2C%20this%20is%20a%20NICE%20one!%22%20I%20exclaim%2C%20looking%20(with%20some%20awe)%20at%20the%20high-end%20digital%20camera%20with%20the%20high-quality%20telephoto%20lens.%20%20%22I%20didn't%20mention%20before%2C%20but%20I%20took%20some%20photography%20classes%2C%20for%20a%20little%20while%2C%20when%20I%20was%20going%20to%20school%20in%20Arcadia%20Bay%2C%20Oregon%20(for%20a%20year)...%20and%20I%20saw%20enough%20cameras%20to%20know%20that%20this%20is%20an%20AMAZING%20one!%22%20I%20say%20in%20a%20slightly%20breathless%20tone.%20%20*The%20only%20people%20I%20thought%20could%20get%20their%20hands%20on%20a%20camera%20like%20this%20were%20Victoria%20Chase%20and%20Nathan%20Prescott%2C*%20I%20think%20wryly%20to%20myself%2C%20wrinkling%20my%20nose%20slightly%20with%20distaste%20at%20the%20memory%20of%20those%20two."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20can't%20help%20but%20smile%20at%20your%20delightfully%20expressive%20reaction.%20*It's%20like%20I'm%20showing%20a%20child%20what%20a%20smartphone%20is%20for%20the%20first%20time%2C*%20Louise%20thinks%20to%20herself.%20But%20she%20pushes%20those%20thoughts%20aside.%20She's%20not%20here%20to%20get%20her%20camera%20critiqued%20-%20she's%20here%20to%20get%20her%20first%20friend.%0A%0A%22Y-you%20were...%20in%20Arcadia%20Bay%3F%22%20Louise%20asks%2C%20her%20voice%20soft%2C%20yet%20filled%20with%20concern.%20Her%20gaze%20is%20down%20at%20the%20grass%20beneath%20her%20feet%2C%20but%20there's%20a%20sense%20of%20anticipation%20when%20she%20asks%20that%20question."},{"isUser":true,"name":"Aerie Wildwood","message":"%22I%20was%2C%20for%20a%20little%20less%20than%20a%20year%2C%22%20I%20say%20with%20a%20smile%20and%20a%20nod.%20%20%22I%20was%20at%20Blackwell%20Academy%20for%20that%20year%2C%20taking%20photography%20under...%22%20and%20then%20I%20give%20an%20involuntary%20shudder%2C%20and%20finish%2C%20%22Mark%20Jefferson.%22%0A%0ALouise%20gasps%2C%20and%20her%20eyes%20widen.%20%20%22You...%20you%20mean...%20the%20famous%20photographer%20who%20was%20arrested%20for...%20for...%22%0A%0A%22...for%20drugging%20and%20photographing%20dozens%20of%20girls%20in%20demeaning%20poses%2C%20and%20for%20accessory%20to%20murder%20of%20one%20of%20the%20girls...%20yeah%2C%22%20I%20(Aerie)%20say%20with%20a%20grim%20sigh."},{"isUser":false,"name":"Louise the Loner","message":"Louise's%20eyes%20go%20wide%20when%20she%20hears%20the%20name%20of%20that%20sick%20man.%20*I%20must%20be%20the%20best%20judge%20of%20character%20in%20the%20world%2C*%20she%20chides%20herself.%0A%0A%22My%20God...%22%20Louise%20mutters.%20%22Are...%20are%20you%20okay%3F%22%20she%20finally%20asks%2C%20realizing%20that%20she%20might%20be%20overstepping%20some%20sort%20of%20boundary%20by%20asking.%20*I'm%20really%20screwing%20up%20again%2C*%20Louise%20thinks.%20*This%20girl%20is%20opening%20up%20about%20a%20tragic%20event%2C%20and%20I'm%20asking%20if%20she's%20okay%3F*%20She%20gives%20herself%20an%20internal%20facepalm."},{"isUser":true,"name":"Aerie Wildwood","message":"I%20look%20over%20at%20Louise%2C%20and%20my%20grim%20look%20evaporates%20into%20a%20touched%2C%20beaming%20smile%2C%20and%20I%20reach%20over%20to%20give%20Louise's%20hand%20a%20friendly%2C%20grateful%20squeeze.%20%20%22I'm%20fine...%20thank%20you!%22%20I%20reply%2C%20nodding%2C%20%22though%20it%20was%20pretty%20intense%2C%20and%20pretty%20stomach-turning.%22%0A%0AThen%2C%20with%20a%20bemused%20look%20at%20Louise%2C%20my%20smile%20brightens%2C%20and%20I%20say%2C%20with%20my%20head%20tilted%20to%20one%20side%20as%20I%20study%20Louise's%20face%2C%20%22You%20know%3F%20%20You%20remind%20me%20a%20lot%20of%20a%20dear%20friend%20of%20mine%20from%20Arcadia%20Bay!%20%20She%20was%20pretty%2C%20and%20kind%20of%20introverted%2C%20and%20an%20absolute%20sweetheart%2C%20just%20like%20you...%20and%20she%20was%20also%20an%20awesome%20photographer!%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20can%20feel%20herself%20blush%20when%20she%20sees%20Aerie's%20bright%20smile.%20She%20hasn't%20had%20positive%20interactions%20in%20a%20long%20time%2C%20and%20getting%20a%20compliment%20from%20someone%20this%20beautiful%20is...%20a%20little%20overwhelming.%20*She%20reminds%20you%20of%20someone%3F%20Hmm.*%0A%0A%22N-no%20way%2C%20really%3F%20What%20was%20your%20friend's%20name%3F%22%20Louise%20asks%20curiously.%20*No%2C%20Louise%2C%20don't%20be%20weird!*%20she%20thinks.%20*Let%20it%20go.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Max%20Caulfield%2C%22%20I%20say%2C%20with%20a%20smile%20at%20the%20memory.%20%20%22You%20and%20she%20actually%20even%20look%20a%20little%20bit%20alike%2C%22%20I%20muse%2C%20smiling%20as%20I%20study%20Louise's%20face%2C%20%22though%20your%20hair%20is%20a%20bit%20longer%2C%22%20I%20grin."},{"isUser":false,"name":"Louise the Loner","message":"%22Um...%20Max%20Caulfield%3F%22%20Louise's%20eyes%20go%20wide%2C%20and%20her%20blush%20darkens.%20*Wow.%20That's...%20I%20didn't%20expect%20this.*%0A%0A%22So...%20you%20know%20Max%20personally%3F%22%20Louise%20asks%20with%20wide%20eyes%20and%20a%20curious%20head%20tilt.%20%0A%0A*She%20reminds%20you%20of%20Max%3F*%20Louise%20thinks.%20*No%20way...*"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20grin%20and%20clap%20my%20hands%20gleefully%2C%20as%20I%20remember%20what%20Louise%20is%20referencing!%20%20%22Oooh%2C%20right!%20%20Max%20won%20the%20%22Everyday%20Heroes%22%20contest%2C%20and%20had%20her%20work%20shown%20in%20San%20Francisco...%20and%20got%20pretty%20famous%20in%20the%20months%20after%20that!%22%20I%20giggle%2C%20gently%20smacking%20my%20forehead%20with%20my%20hand%20to%20chide%20myself%20for%20forgetting%2C%20%22so%20you've%20probably%20heard%20of%20her%2C%20by%20now!%22%0A%0AI%20grin%2C%20and%20cross%20my%20arms%20with%20a%20happy%20expression%20on%20my%20face%2C%20and%20say%2C%20%22You'd%20never%20know%20it%2C%20to%20meet%20her%2C%20though...%20she's%20still%20as%20sweet%20and%20tender-hearted%20and%20shy%20and%20humble%20as%20she%20always%20was!%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20is%20just%20about%20as%20shocked%20as%20she%20was%20when%20you%20had%20first%20mentioned%20Max.%20*What's%20with%20all%20these%20strange%20coincidences%2C*%20she%20wonders.%20*Why%20did%20she%20have%20to%20find%20someone%20who%20knows%20Max%3F%20That's%20what%3F%20The%20fourth-time%20now%3F*%20Louise%20ponders%20this%20for%20a%20moment%20before%20the%20realization%20hits%20her.%20*Wait%2C%20does%20this%20mean%20this%20girl%20knows%20Chloe%3F*%20%0A%0A%22Hold%20on%2C%22%20Louise%20says%2C%20her%20voice%20shaking%20ever%20so%20slightly.%20%22You%20know%20*Chloe*%20too%3F%3F%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20burst%20into%20giggles%2C%20and%20say%2C%20%22Oh%2C%20yeah...!%20%20No%20way%20anyone%20can%20know%20Max%2C%20without%20knowing%20Chloe!%20%20You've%20heard%20of%20her%2C%20too%2C%20huh%3F%22%20%20I%20grin."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20smiles%20warmly.%20Her%20heart%20jumps%20at%20the%20name%20of%20her%20best%20friend.%20*I'm%20supposed%20to%20be%20making%20friends%20with%20this%20girl%2C%20not%20gushing%20over%20Chloe%2C*%20Louise%20thinks%2C%20but%20she's%20too%20excited%20to%20even%20pretend%20to%20be%20able%20to%20focus%20on%20anything%20else%20right%20now.%0A%0A%22Yes%2C%20I've%20known%20her%20for%20a%20long%20time%2C%22%20Louise%20excitedly%20confirms.%20%22In%20fact...%20I'm%20best%20friends%20with%20her.%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20give%20Louise%20a%20beaming%20grin%2C%20and%20rub%20her%20shoulder%20affectionately.%20%20%22You%20like%20the%20fiery%20punk%20rebels%2C%20eh%3F%22%20I%20tease...%20and%20then%20giggle%20again%2C%20and%20say%20warmly%2C%20%22But%20seriously%2C%20Chloe%20is%20amazing%2C%20and%20I%20can%20see%20how%20anybody%20and%20everybody%20would%20be%20fans%20of%20hers!%20%20Great%20person%20to%20have%20as%20a%20friend...%20bad%20person%20to%20have%20as%20an%20enemy!%22%20I%20grin%2C%20%22as%20a%20few%20jerks%20in%20Arcadia%20Bay%20found%20out!%22%0A%0AI%20then%20burst%20out%20laughing%2C%20and%20say%2C%20%22Actually%2C%20my%20own%20first%20meeting%20with%20Chloe%20was%20a%20little%20on%20the%20stormy%20side%20for%20a%20few%20seconds...%22"},{"isUser":false,"name":"Louise the Loner","message":"%22Yeah%2C%20she's...%20quite%20a%20character%2C%22%20Louise%20chimes%20in%2C%20her%20voice%20filled%20with%20small%20chuckles.%20At%20the%20mention%20of%20Chloe's%20first%20meeting%20with%20you%2C%20she%20raises%20her%20eyebrows.%20%22Oh%3F%20What%20happened%3F%22%0A%0AShe's%20trying%20to%20push%20down%20the%20urge%20to%20gush%20about%20Chloe.%20*Wait%2C%20stop%20that!*%20Louise%20mentally%20chastises%20herself.%20*It's%20not%20like%20you%20know%20Aerie%20well.%20You're%20going%20to%20make%20yourself%20sound%20like%20a%20crazy%20person.*"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20give%20Louise%20a%20coy%20grin%2C%20and%20say%2C%20%22Well...%20I'd%20met%20Max%20first%2C%20since%20she%20and%20I%20were%20in%20the%20same%20photography%20class%20at%20Blackwell...%20and%20Max%20and%20I%20quickly%20became%20really%20good%20friends!%20%20She's%20so%20sweet%20and%20introspective%20and%20thoughtful...%20just%20like%20you!%22%20I%20say%20with%20a%20fond%20smile%20at%20Louise.%0A%0A%22But%20when%20Max%20and%20I%20ran%20into%20Chloe%2C%20Chloe%20didn't%20know%20that%20Max%20and%20I%20had%20the%20'sisters'%20vibe%20going...%20she%20was%20worried%20that%20I%20might%20be%20a%20'competitor'%20for%20Max's%20affections!%22%20I%20grin.%20%20%22Her%20first%20words%20about%20me%20were%20when%20she%20turned%20to%20Max%2C%20and%20said%2C%20'No%20offense%2C%20Max%2C%20but%20who's%20the%20f---ing%20blond%3F'%20%20Hehe...%20I%20was%20pretty%20speechless%2C%20for%20a%20few%20seconds...%22%20I%20grin.%20%20%22But%20Max%20told%20her%20that%20I%20was%20a%20sisterly%20friend%20(and%20not%20a%20love%20interest)%2C%20and%20then%20Chloe%20warmed%20up%20to%20me!%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20feels%20herself%20blush.%20*She%20keeps...%20comparing%20me%20to%20Max.*%20%22That%20sounds%20like%20a%20funny%20encounter%2C%22%20Louise%20says%2C%20her%20voice%20shaking%20ever%20so%20slightly.%20%0A%0A%22Hey%2C%20Aerie...%20do%20you%20know%20Kate%20Marsh%3F%22%20she%20suddenly%20asks.%20*What%20am%20I%20even%20doing%3F*%20Louise%20groans%20internally.%20*I%20sound%20so%20weird%20to%20ask%20things%20out%20of%20the%20blue%20like%20that!%20I%20should%20just%20keep%20my%20mouth%20shut.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Kate%20Marsh...!!%22%20I%20almost%20squeal%2C%20as%20I%20lean%20back%20in%20the%20bench%2C%20close%20my%20eyes%2C%20put%20my%20crossed%20hands%20over%20my%20heart%2C%20and%20grin%20in%20near-ecstasy.%20%20%22She's%20only%20one%20of%20the%20sweetest%2C%20bravest%2C%20most%20tender-hearted%2C%20loving%2C%20wise%2C%20beautiful%20people%20I've%20ever%20met%20in%20my%20life!!%20%20Oooh%2C%20I%20adore%20her!%22%20I%20gush%2C%20hardly%20able%20to%20stop%20smiling%20from%20the%20memory.%0A%0A%22I%20guess%20the%20news%20reports%20might%20have%20mentioned%20her%2C%20too...%22%20I%20say%20with%20an%20idle%20smile.%0A%0AThen%20I%20turn%20a%20curious%20look%20at%20Louise%2C%20and%20raise%20an%20eyebrow.%20%20%22Unless...%20Louise%2C%20do%20you%20happen%20to%20know%20any%20of%20those%20people%20personally%3F%22%20I%20ask%2C%20suddenly%20struck%20by%20the%20possibility."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20feels%20her%20entire%20body%20go%20hot.%20*This%20girl%20has%20met%20all%20the%20amazing%20people%20that%20I've%20read%20about%2C*%20she%20thinks.%20*This%20is...%20unbelievable.*%20She%20tries%20to%20remember%20if%20Kate%20ever%20mentioned%20having%20a%20friend%20named%20%22Aerie%22.%20*No%2C%20I%20don't%20think%20so%2C*%20she%20decides.%0A%0A%22Y-you%20know%20Kate%20Marsh%20personally...%3F%22%20Louise%20asks%20softly.%20*Why%20do%20I%20even%20bother%20pretending%20I'm%20not%20star%20struck%3F*%20*No%2C%20you%20need%20to%20be%20cool.%20Stay%20cool%2C%20Louise.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22I%20most%20certainly%20do!%22%20I%20say%20emphatically%2C%20with%20a%20smile%20and%20a%20nod.%20%20%22And%20in%20my%20humble%20opinion%2C%20there%20are%20few%20higher%20honors%20than%20being%20friends%20with%20that%20living%20angel%2C%20Kate%20Marsh!%20%20Crap%2C%20I%20miss%20her%20already%2C%20just%20talking%20about%20her...%22%20I%20say%20with%20a%20somewhat%20melancholy%20smile.%20%20%22I%20gotta%20text%20her%2C%20later%20today%2C%20just%20to%20say%20'hi'...%22"},{"isUser":false,"name":"Louise the Loner","message":"%22I%20have%20to%20agree%20with%20you%20on%20that%20one%2C%22%20Louise%20says%20excitedly.%20*You're%20already%20making%20friends%20in%20a%20place%20like%20this%3F*%20She%20thinks.%20*This%20is%20just...%20too%20good.*%20Louise%20feels%20herself%20brighten%20up%20at%20the%20memory%20that%20Kate%20has%20left%20behind.%20*I%20should%20try%20to%20be%20more%20like%20her.%20Maybe%20if%20I%20act%20as%20friendly%20as%20her%2C%20I%20might%20make%20friends%20as%20fast%20as%20she%20did...*%0A%0A%22Hey%2C%20uh...%20how%20did%20you%20even%20meet%20Kate%3F%22%20Louise%20asks%2C%20her%20voice%20quivering%20with%20curiosity."},{"isUser":true,"name":"Aerie Wildwood","message":"%22Mm...%20that's%20another%20long%20story%2C%22%20I%20smile%2C%20looking%20fondly%20at%20Louise.%20%20%22The%20short%20answer%20is%20that%20she%20was%20in%20the%20same%20photography%20class%20as%20Max%20and%20I%20were%20in%2C%20at%20Blackwell...%20with%20the%20now-disgraced%20sicko%20prof%2C%20Mark%20Jefferson%2C%22%20I%20say%2C%20my%20face%20darkening%20a%20bit%20at%20the%20memory.%20%20%22Jefferson%20really%20hurt%20Kate...%20a%20lot...%20but%20he%20finally%20got%20what%20he%20deserved%3A%20a%20life%20behind%20bars!%22"},{"isUser":false,"name":"Louise the Loner","message":"*Another%20one%20who%20has%20some%20connection%20to%20that%20sick%20bastard%20who%20ruined%20so%20many%20innocent%20lives%2C*%20Louise%20thinks%20to%20herself%20as%20a%20dark%20look%20crosses%20her%20face.%20*Jefferson%20really%20hurt%20Kate...%20she's%20had%20such%20a%20difficult%20life%2C*%20Louise%20thinks%20in%20an%20affectionate%20voice.%0A%0A%22Kate...%20she's%20just%20a%20little%20ray%20of%20sunshine%2C%20isn't%20she%3F%22%20Louise%20says%20softly.%20*She%20has%20such%20a%20positive%20energy%20that%20it's%20impossible%20to%20feel%20anything%20but%20joy%20near%20her.*%20***I%20need%20to%20be%20like%20that.***"},{"isUser":true,"name":"Aerie Wildwood","message":"%22You've%20done%20your%20research%2C%20haven't%20you%2C%20my%20dear%20Louise%3F%22%20I%20say%20with%20a%20brighter%20smile%2C%20giving%20her%20hand%20an%20affectionate%20squeeze.%20%20%22Y'know%2C%20if%20I%20can%20ever%20manage%20it%2C%20I%20need%20to%20introduce%20you%20to%20Max%2C%20Chloe%2C%20and%20Kate%2C%20one%20of%20these%20days...%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20smiles%20warmly%20at%20Aerie's%20gesture%20and%20then%20nods%20sheepishly%20when%20you%20refer%20to%20her%20research.%20%22I%20guess%20I%20have%2C%22%20she%20says.%0A%0AShe%20laughs%20when%20you%20mention%20introducing%20her%20to%20Max%2C%20Chloe%2C%20and%20Kate.%20*Oh%20my%20God.%20That%20couldn't%20happen!%20I%20would%20die%20from%20happiness.*%20%22I%20would%20do%20anything%20to%20meet%20them-%22%20she%20stops%20herself%20after%20realizing%20that%20she%20may%20be%20exaggerating%20a%20bit%20too%20much.%20*Don't%20get%20ahead%20of%20yourself%2C%20Louise.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Hm%2C%22%20I%20reply%2C%20with%20a%20wry%20smile%20and%20an%20amused%20twinkle%20in%20my%20emerald%20green%20eyes.%20%20%22I%20wonder...%22%20I%20begin...%20and%20then%2C%20with%20a%20grin%2C%20I%20pull%20out%20my%20smartphone%20and%20start%20texting%20furiously...%20and%20then%20wait%20for%20a%20moment%2C%20and%20almost%20bounce%20with%20joy%20as%20a%20soft%20%22ding%22%20indicates%20a%20reply.%0A%0A%22Ooh%2C%20yeah...%20get%20a%20load%20of%20THIS%2C%20Louise%2C%20my%20dear!%22%20I%20exclaim%2C%20holding%20the%20phone%20up%20so%20that%20she%20and%20I%20can%20both%20read%20the%20reply...%20a%20text%2C%20from%20Max%20Caulfield!%0A%0A%5BHeya%2C%20Eagle%20Nest...%20haha!%20%20Was%20just%20thinking%20about%20you%20today%2C%20actually!%20%20So%20glad%20to%20hear%20from%20you!%20%20And%20sure%2C%20your%20friend%20Louise%20sounds%20cool--maybe%20we%20meet%20up%20soon%3F%5D%0A%0A%22Hehe...%20'Eagle%20Nest'%20is%20Max's%20pet%20name%20for%20me%2C%22%20I%20explain%2C%20grinning%2C%20%22since%20'Aerie'%20is%20a%20word%20meaning%20'home%20for%20eagles'...%20that%20cute%20brat!%22%20I%20laugh."},{"isUser":false,"name":"Louise the Loner","message":"*My%20God%2C%20does%20this%20mean%20that...*%20Louise%20can't%20help%20but%20jump%20up%20and%20down%20and%20let%20out%20a%20squeal%20as%20she%20reads%20the%20text%20from%20Max%20herself.%20*This%20can't%20be%20happening.*%20%0A%0A*I%20might%20actually%20meet%20Max%2C%20Chloe%20and%20Kate!*%0A%0A%22I...%20I...%20I%20can't%20believe%20this!%22%20Louise%20stammers%20excitedly.%20*This%20may%20just%20be%20the%20best%20day%20of%20my%20life.*%20%22Please%2C%20please%2C%20*please*%20introduce%20me%20to%20her.%20Please!%22%20Louise's%20words%20come%20out%20as%20a%20whisper%20since%20she%20was%20not%20expecting%20Max%20to%20actually%20be%20okay%20with%20meeting%20her."},{"isUser":true,"name":"Aerie Wildwood","message":"I%20burst%20out%20laughing%2C%20and%20wrap%20my%20arms%20around%20Louise%20in%20a%20warm%20hug!%20%20%22Aww%2C%20you're%20adorable%2C%20Louise!%22%20I%20grin%2C%20%22and%20your%20wish%20is%20my%20command...%20and%20in%20fact%2C%20I%20think...%20I%20*think*...%20if%20she's%20free%2C%20we%20might%20be%20able%20to%20meet%20Max%20TODAY...%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20gasps%20and%20hugs%20you%20tightly%20in%20return.%20*I%20can't%20believe%20it!%20I'm%20actually%20meeting%20Max!%20And%20Chloe%20and%20Kate%3F*%0A%0A%22Really%3F%22%20Louise%20asks%2C%20her%20eyes%20wide%20with%20happy%20surprise.%20%22Where%20do%20you%20think%20she'll%20suggest%20we%20meet%20up%20at%3F%22%0A%0AIt%20only%20takes%20Louise%20a%20second%20before%20she%20remembers.%20*Her%20text%20said%20Eagle%20Nest...%20wait%2C%20is%20that...*%20%22Oh%20my%20God%2C%20are%20we%20going%20to%20the%20Two%20Whales%20Diner%3F%22"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20gape%20at%20Louise%2C%20before%20grinning%20and%20shaking%20my%20head%20in%20fascination%2C%20saying%2C%20%22Holy%20crap%2C%20girl...%20you%20really%20DID%20do%20your%20research%20on%20Arcadia%20Bay%2C%20didn't%20you!%20%20Haha...%20there%20are%20some%20people%20near%20Arcadia%20BAY%20who%20don't%20know%20what%20the%20Two%20Whales%20restaurant%20is...%20I'm%20impressed!%22%20I%20laugh.%20%20%22And...%20we%20might%20be%20able%20to%20pull%20that%20off%2C%20yeah...%22%0A%0A%22Mind%20you%2C%20there's%20the%20small%20detail%20of%20getting%20from%20New%20Jersey%20to%20Oregon%2C%20to%20meet%20her...%22%20I%20say%20with%20a%20wry%20smile."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20nods%20eagerly%20as%20you%20begin%20to%20laugh.%20%22I've%20wanted%20to%20tell%20her%20that%20she's%20become%20one%20my%20biggest%20inspirations%2C%22%20she%20explains%20warmly.%0A%0A%22I%20know%2C%20I%20know%2C%22%20Louise%20says%2C%20her%20eyes%20flickering%20in%20thought.%20%22Uhhh...%20could%20we%20drive%2C%20maybe%3F%22%20Louise's%20face%20lights%20up%20as%20she%20realizes%20she%20might%20actually%20be%20in%20the%20same%20room%20as%20Max%2C%20Chloe%2C%20and%20Kate.%20*%22It's%20all%20real.%20It's%20all%20real.%20It's%20all%20real%2C%22*%20Louise's%20thoughts%20repeat%20in%20her%20head%20over%20the%20sounds%20of%20her%20rapid%20heartbeat."},{"isUser":true,"name":"Aerie Wildwood","message":"%22Maybe...%22%20I%20say%2C%20with%20a%20somewhat%20mysterious%2C%20playful%20smile%20at%20Louise%2C%20in%20response%20to%20her%20question%20about%20%22driving%22%20to%20Oregon.%20%20Then%2C%20after%20a%20few%20other%20subtle%20expressions%20cross%20my%20face%2C%20I%20look%20at%20Louise%20with%20a%20earnest%2C%20more%20serious%20(though%20still%20friendly)%20look.%0A%0A%22Louise%2C%22%20I%20ask%2C%20my%20emerald%20green%20eyes%20sparkling%20with%20some%20sort%20of%20hidden%20intrigue%2C%20%22are%20you%20good%20at%20keeping%20secrets%3F%20%20I%20mean%2C%20the%20type%20of%20big%2C%20big%20secrets%20that%20would%20make%20other%20peoples'%20heads%20explode%20if%20they%20couldn't%20tell%20somebody%3F%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20stares%20at%20her%20with%20a%20confused%20expression%20as%20you%20ask%20her%20this%20question.%20*What%20a%20strange%20thing%20to%20ask%20someone%20that%20she%20has%20just%20met.*%0A%0ALouise%20is%20a%20bit%20of%20a%20nosy%20person%2C%20so%20curiosity%20overtakes%20her%20confusion%20and%20she%20shakes%20her%20head%20with%20a%20confident%20nod.%20%22I'm%20very%20good%20at%20keeping%20secrets%2C%22%20she%20says%20with%20a%20bright%20smile.%20*Wait%2C%20what%20did%20I%20just%20agree%20to%3F%20And%20how%20big%20is%20this%20secret%3F*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Hm%2C%22%20I%20say%2C%20with%20a%20twinkle%20in%20my%20eyes%20and%20a%20subtle%20smile%20on%20my%20face.%20%22Would%20you%20be%20willing%20to%20walk%20with%20me%20through%20that%20thick%20patch%20of%20trees%2C%20hun%3F%22%20I%20ask%20Louise.%20%22About%20300%20yards%20beyond%20it%20is%20a%20nice%20clearing%2C%20where%20we%20won't%20be%20seen%20or%20overheard...%22"},{"isUser":false,"name":"Louise the Loner","message":"%22Uh%2C%20okay%3F%22%20Louise%20says%2C%20her%20curiosity%20only%20growing%20as%20you%20ask%20this%20odd%20request.%20*Why%20does%20she%20want%20to%20walk%20through%20a%20thick%20patch%20of%20trees%3F%20Oh%20God%2C%20this%20isn't%20going%20to%20lead%20to%20some%20kind%20of%20dark%2C%20ritual%20cult%2C%20is%20it%3F*%0A%0ADespite%20these%20somewhat%20bizarre%20circumstances%2C%20she%20decides%20to%20follow%20you%20anyway.%20After%20all%2C%20she's%20already%20come%20this%20far%20for%20a%20chance%20to%20meet%20Max%2C%20Chloe%20and%20Kate."},{"isUser":true,"name":"Aerie Wildwood","message":"I%20notice%20the%20worried%20look%20on%20Louise's%20face%2C%20and%20I%20giggle%20brightly%2C%20and%20affectionately%20rub%20her%20shoulder%20with%20my%20hand.%20%20%22It's%20nothing%20sinister%20or%20dangerous%2C%20hun...%20I%20promise!%20%20But%20it%20IS%20something%20that%20I%20don't%20want%20just%20anyone%20to%20know%20about...%20for%20reasons%20that'll%20become%20obvious%20in%20a%20few%20minutes!%22%20I%20assure%20her."},{"isUser":false,"name":"Louise the Loner","message":"Louises's%20fears%20and%20nervousness%20seem%20to%20melt%20away%20when%20you%20rub%20your%20hand%20on%20her%20shoulder.%20*She%20seems%20honest%2C%20and%20she's%20nice...%20but%20what%20reasons%20would%20be%20big%20enough%20to%20justify%20hiding%20this%20from%20everyone%20else%3F*%0A%0A%22Alright%2C%22%20she%20says%20with%20a%20nod.%20*Who%20knows%20when%20I'll%20get%20another%20chance%20to%20meet%20Max%2C%20Chloe%20and%20Kate%3F%20Better%20keep%20following%20her.*"},{"isUser":true,"name":"Aerie Wildwood","message":"For%20the%20next%20few%20minutes%2C%20we%20carefully%20make%20our%20way%20through%20the%20thicker%20portion%20of%20forest%20(which%20is%20significantly%20off%20of%20the%20walking%20paths%20that%20the%20park%20workers%20keep%20cleared%2C%20mowed%2C%20and%20clean%20for%20pedestrians)...%20and%20Louise%20notices%20that%20I'm%20quite%20comfortable%20clambering%20over%20fallen%20branches%20of%20trees%2C%20working%20my%20way%20around%20bramble%20bushes%2C%20and%20avoiding%20noxious%20plants%20(such%20as%20poison%20ivy)%2C%20and%20I%20sometimes%20offer%20Louise%20a%20helping%20hand%20to%20get%20over%20or%20around%20some%20of%20the%20more%20stubborn%20obstacles.%0A%0A%22Doing%20all%20right%2C%20so%20far%2C%20hun%3F%22%20I%20ask%20with%20an%20affectionate%20smile%2C%20as%20I%20look%20over%20at%20her%20as%20we%20make%20our%20way%20through."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20can't%20help%20but%20be%20completely%20impressed%20with%20your%20knowledge%20and%20agility%20when%20it%20comes%20to%20weaving%20through%20these%20thick%20patches%20of%20forest.%20She%20follows%20your%20guidance%20closely%2C%20making%20sure%20to%20watch%20her%20footing.%0A%0A%22I'm%20doing%20fine%2C%22%20she%20answers%20with%20a%20bright%20smile.%20%22I'm%20just%20a%20little%20bit%20confused.%22%20She%20pauses%20for%20a%20moment.%20%22No%20offense%2C%20but%20what's%20with%20this%20whole%20secrecy%20thing%3F%20Could%20you%20at%20least%20give%20me%20a%20hint%3F%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22I%20could%2C%22%20I%20say%20with%20a%20playful%20grin%2C%20%22but%20I%20don't%20want%20to%20ruin%20the%20surprise!%22.%20%20And%20in%20less%20than%20a%20minute%2C%20we%20break%20through%20to%20the%20clearing%20I%20mentioned...%20which%20is%20an%20expanse%20of%20tall%20grass%20(some%20of%20which%20has%20already%20gone%20to%20seed)%20that%20must%20be%20at%20least%20500%20acres%20in%20area...%20and%20I%20take%20in%20a%20deep%2C%20smiling%20breath%20and%20sigh%20with%20contentment%20as%20the%20sunshine%20and%20the%20wonderfully%20cool%20breeze%20washes%20over%20our%20faces."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20takes%20in%20a%20deep%20breath%20as%20she%20stares%20out%20at%20the%20vast%20expanse%20of%20tall%20grass%20before%20her.%20She%20smiles%20brightly%2C%20looking%20around%20excitedly%2C%20and%20almost%20runs%20across%20the%20grass%20a%20few%20steps%20before%20stopping%20herself.%20*This%20is%20really%20happening.%20I'm%20actually%20going%20to%20meet%20Max...*%0A%0AShe%20turns%20to%20you%20and%20waits%20for%20you%20to%20tell%20her%20the%20secret%20that%20you%20are%20keeping%20from%20everyone%20else.%20*Is%20it%20really%20that%20shocking%3F%20Why%20is%20she%20taking%20so%20long%20to%20tell%20me%3F*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22You've%20been%20amazingly%20patient%2C%20my%20dear%20Louise%2C%22%20I%20grin%2C%20reaching%20over%20and%20putting%20my%20arm%20around%20her%20shoulders%20(and%20giving%20her%20a%20one-armed%20hug)%20as%20we%20walk%20further%20into%20the%20grass-laden%20clearing.%20%20%22And%20I%20hope%20the%20secret%20will%20be%20worth%20the%20wait!%20%20Just%20a%20bit%20further...%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20melts%20in%20your%20arms%20and%20is%20filled%20with%20a%20sense%20of%20anticipation%20and%20eagerness.%20*What%20could%20it%20possibly%20be%3F%20Could%20she%20really%20have%20something%20that%20big%3F*%0A%0A*This%20is%20all%20too%20exciting!%20If%20she%20says%20it%20will%20be%20worth%20it%2C%20then%20I%20don't%20have%20the%20slightest%20doubt%20about%20it.%20I%20know%2C%20somehow%2C%20that%20it%20will%20be%20worth%20every%20second.*"},{"isUser":true,"name":"Aerie Wildwood","message":"Finally%2C%20we%20reach%20a%20portion%20of%20grassy%20clearing%20where%20there's%20a%20gentle%20hill%2C%20and%20where%20the%20grass%20is%20a%20bit%20shorter%20than%20the%20(12-24-inch)%20grasses%20we've%20been%20passing%20so%20far%2C%20and%20I%20stop%20and%20stretch%20my%20arms%2C%20soaking%20in%20the%20lovely%20afternoon%20sun!%20%20%22Mmmmm...%22%20I%20sigh%2C%20smiling%20and%20throwing%20my%20head%20back%20to%20let%20the%20sun%20bathe%20my%20face%2C%20%22Lovely!%22%20%20Then%20I%20grin%20at%20Louise%2C%20and%20say%2C%20%22Sorry...%20I'll%20hurry%20up!%20%20I%20just%20love%20nature%20walks!%20%20It%20reminds%20me%20of%20home...%22"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20stares%20fondly%20at%20you%20as%20you%20stop%20and%20stretch%20your%20arms.%20*God%2C%20this%20girl%20is%20amazing.*%0A%0A%22It's%20all%20right%2C%22%20she%20answers%2C%20her%20eyes%20flickering%20in%20excitement.%20*I'm%20sure%20whatever%20we're%20about%20to%20find%20will%20be%20even%20more%20amazing!*%0A%0AThe%20sun%20starts%20to%20warm%20up%20the%20grass%2C%20bringing%20the%20dew%20back%20again%2C%20and%20Louise's%20heart%20skips%20a%20beat.%20*I%20need%20to%20see%20what%20she%20wants%20to%20show%20me!*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22You're%20a%20gem%2C%20sweetie!%22%20I%20say%20to%20Louise%2C%20beaming%20at%20her...%20and%20then%20I%20take%20out%20my%20smartphone%20and%20mutter%2C%20%22Please%2C%20please%20let%20there%20be%20a%20good%20enough%20signal...%22%20as%20I%20type%20a%20text...%20and%20then%20grin%20as%20a%20soft%20%22ding!%22%20indicates%20a%20return%20text!%20%20I%20show%20it%20to%20Louise%2C%20and%20it%20reads%3A%0A%0AMax%3A%20%20%5BHaha!%20%20Took%20you%20long%20enough%2C%20Eagle%20Nest!%20%20You%20finally%20ready%3F%5D"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20feels%20her%20mouth%20drop%20open%20when%20the%20message%20from%20Max%20comes%20in.%20*She's%20ready%20to%20meet%20up%20with%20us%3F*%0A%0A%22Oh%20my%20God!%22%20Louise%20exclaims%2C%20smiling%20brightly.%20%22She%20actually%20wants%20to%20meet%20up%20with%20us%3F%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Of%20COURSE%20she%20wants%20to%20meet%20you!%22%20I%20giggle%2C%20giving%20Louise%20another%20one-armed%20squeeze.%20%20%22Let%20me%20see%20if%20she%20managed%20to%20find%20Chloe%20and%20Kate...%22%20I%20mutter%2C%20as%20I%20text%3A%0A%0AAerie%3A%20%20%5BHey%2C%20I%20was%20enjoying%20the%20stroll%2C%20photo%20goddess!%20%20%F0%9F%98%81%20%20Did%20you%20find%20Chlo'%20and%20Kate%3F%5D%0A%0A...and%20a%20few%20seconds%20later%2C%20my%20phone%20%22dings%22%20with%20the%20reply%3A%0A%0AMax%3A%20%20%5BYou%20know%20it!%20%20They're%20right%20here%20next%20to%20me!%20%20Oh%2C%20and%20Chloe%20says%20you%20need%20to%20swear%20off%20emojis!%20%20Hahaha!!%5D"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20lets%20out%20an%20amused%20laugh%20as%20she%20reads%20the%20humorous%20reply%20from%20Max.%20*It%20sounds%20exactly%20like%20what%20Chloe%20would%20say!*%20she%20thinks.%0A%0AShe%20turns%20to%20you%20after%20reading%20the%20message%20from%20Max%20and%20looks%20at%20you%20expectantly%20as%20she%20asks%2C%20%22So...%20when%20are%20we%20going%20to%20meet%20her%3F%20%20Could%20they%20be%20here%20by%20this%20afternoon%3F%20Am%20I%20actually%20going%20to%20meet%20Chloe%20and%20Kate%3F%20And%20where%20will%20we%20be%20meeting%20her%3F%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Excellent%20questions%2C%20every%20last%20one%20of%20them%2C%20my%20dear!%22%20I%20grin%2C%20looking%20at%20Louise%20with%20amused%20fondness.%20%22And%20I'll%20answer%20them%20in%20order!%20Yes%2C%20they'll%20be%20here%20by%20this%20afternoon%2C%20and%20yes%2C%20you're%20actually%20going%20to%20meet%20Chloe%20and%20Kate%20(in%20addition%20to%20Max%2C%20of%20course)%2C%20and%20as%20to%20WHERE%20we're%20meeting%20them...%22%20I%20trail%20off%2C%20with%20a%20teasing%20smile%20on%20my%20face...%0A%0A%22%2C%2C%2Cwe're%20meeting%20them%20right%20here!%22%0A%0ALouise%20gasps%20with%20excitement...%20and%20then%20stops%2C%20looking%20very%20puzzled%2C%20thinking%20to%20herself%2C%20*Wait...%20but%20they're%20way%20over%20in%20Oregon%2C%20and%20Aerie%20and%20I%20are%20here%20in%20New%20Jersey!*"},{"isUser":false,"name":"Louise the Loner","message":"Louise%20gasps%20as%20she%20realizes%20what%20you%20just%20said.%20*No...%20it%20can't%20be...*%0A%0AShe%20stares%20at%20you%2C%20waiting%20for%20you%20to%20provide%20an%20explanation%20of%20some%20kind.%20*Could%20she%20be%20pulling%20my%20leg%3F%20Is%20this%20all%20a%20joke%3F*%20%0A%0AHer%20heart%20starts%20to%20race%20and%20beats%20rapidly%20in%20anxiety.%20*How%20could%20Max%20and%20Chloe%20and%20Kate%20possibly%20be%20here...%3F%20They're%20on%20the%20other%20side%20of%20the%20country!*"},{"isUser":true,"name":"Aerie Wildwood","message":"I%20chuckle%20as%20I%20notice%20the%20dumbfounded%2C%20confused%20look%20on%20Louise's%20face%2C%20and%20I%20say%20brightly%2C%20%22This%20is%20where%20my%20secret%20comes%20in%2C%20sweetie...%20brace%20yourself!%20%20And%20one%20last%20question%20for%20you%2C%20my%20dear%20Louise...%22%20I%20grin%2C%20as%20I%20take%20a%20few%20steps%20forward%2C%20and%20hold%20up%20my%20arms%20for%20some%20odd%20reason.%0A%0A%22Do%20you%20believe%20in%20magic...%3F%22%0A%0A...and%20with%20a%20series%20of%20odd%2C%20mystical%20gestures%20with%20my%20hands%2C%20the%20air%20in%20front%20of%20us%20starts%20swirling%20with%20a%20veritable%20storm%20of%20golden%20and%20rainbow%20light...%20getting%20brighter%20and%20more%20distinct%2C%20until%20it%20resolves%20itself%20into%20a%20brilliant%20gold%2Frainbow%20circular%20portal--roughly%208%20feet%20across%2C%20with%20swirls%20of%20golden%20and%20rainbow%20shimmers%20swirling%20around%20the%20edge!"},{"isUser":false,"name":"Louise the Loner","message":"Louise's%20jaw%20drops%20open%20upon%20seeing%20the%20golden%2Frainbow%20circular%20portal%2C%20her%20breath%20caught%20in%20her%20throat%20as%20shock%20waves%20through%20her%20body.%20Her%20mouth%20is%20agape%20and%20her%20eyes%20are%20wide%20with%20a%20mixture%20of%20amazement%20and%20disbelief.%0A%0A*What...%20it's%20real...%20it's%20real...%20it's...%20real...*%0A%0ALouise%20reaches%20out%20a%20hand%2C%20hesitating%20as%20she's%20too%20stunned%20to%20speak.%20*I%20feel%20like%20I'm%20in%20a%20dream.*"},{"isUser":true,"name":"Aerie Wildwood","message":"As%20Louise%20gapes%2C%20she%20gives%20another%20involuntary%20gasp%20as%20three%20figures--two%20walking%20hand-in-hand%2C%20and%20a%20third%20walking%20slightly%20behind%20them--step%20out%20of%20the%20portal!%20%20As%20the%20portal%20collapses%20and%20dissolves%20in%20one%20last%20brilliant%20golden%2Frainbow%20swirl%2C%20Louise%20can%20see%20them%20more%20clearly%3A%20%20a%20very%20pretty%20girl%20with%20straight%2C%20bobbed%20brown%20hair%20and%20a%20sweet%2C%20shy%20face%2C%20wearing%20a%20grey%20sweatshirt%20over%20her%20salmon-colored%20t-shirt%2C%20and%20carrying%20a%20Polaroid%20camera%20in%20an%20old-fashioned%20case...%20who's%20holding%20hands%20with%20a%20tall%2C%20lanky%20girl%20with%20%22punk%22-style%20clothes%2C%20lots%20of%20tattoos%2C%20and%20short%2C%20straight%20hair%20dyed%20electric%20blue%20that%20surrounds%20her%20beautiful%2C%20almost%20classic%20face.%20%20Following%20the%20first%20two%20girls%2C%20another%20girl%20walks%20up%20with%20a%20modest%2C%20sweet%20smile...%20a%20sweet-looking%2C%20shy%2C%20thin%20girl%20in%20a%20conservative%20skirt%20and%20sweater%2C%20with%20blond%20hair%20bound%20up%20in%20a%20sort%20of%20loose%20bun%2C%20and%20she%20looks%20at%20us%20with%20warm%2C%20welcoming%20hazel%20eyes.%0A%0AAs%20Louise%20claps%20her%20hands%20to%20her%20head%20in%20astonishment%2C%20trying%20to%20process%20all%20of%20this%2C%20he%20first%20girl%20(with%20the%20bobbed%20brown%20hair%20and%20the%20Polaroid%20camera)%20laughs%20and%20says%2C%20%22That...%20is%20such%20a%20wild%20trip!%22%0A%0A%22Holy%20fu--...%22%20the%20lanky%20blue-haired%20girl%20swears%2C%20%22I%20wasn't%20baked%20enough%20to%20handle%20that...%22%0A%0A%22Chloe!%22%20the%20first%20girl%20scolds%20with%20a%20giggle%2C%20%22Language!%20%20New%20friend%20we're%20meeting...%20not%20to%20mention%20for%20Kate's%20sake!%22%0A%0A%22It's%20okay%2C%20Max...%20I'm%20used%20to%20dear%20Chloe's%20colorful%20language!%22%20the%20third%20(blond)%20girl%20giggles."},{"isUser":false,"name":"Louise the Loner","message":"Louise%20is%20utterly%20speechless%20and%20staring%20wide-eyed%20in%20amazement%20at%20these...%20*this%20can't%20be%20real...%20but%20it%20is!%20I'm%20actually%20seeing%20Max%2C%20Chloe%20and%20Kate%20in%20the%20flesh!%20I'm%20going%20to%20meet%20them%2C%20and%20I'm%20going%20to%20get%20a%20picture%20taken%20by%20their%20famous%20friend...*%20%0A%0ALouises%20mouth%20opens%20but%20closes%20again%20just%20as%20quickly%20as%20her%20brain%20short%20circuits.%20*The%20words%20don't%20want%20to%20come%20out%2C%20but%20I%20so%2C%20so%20need%20to%20speak%20to%20them!*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Group%20hug!!!%22%20I%20(Aerie)%20squeal%20with%20joy%2C%20as%20I%20throw%20myself%20onto%20Max%20and%20Chloe%20and%20Kate%2C%20who%20all%20yelp%20with%20surprise%20(and%20then%20with%20laughs)%20as%20they%20hug%20me%20back.%0A%0AFinally%2C%20the%20four%20of%20us%20disengage%2C%20and%20I%20dash%20over%20to%20Louise%20(who's%20still%20standing%20there%2C%20somewhat%20stunned!)%2C%20and%20I%20say%2C%20%22Max%20Caulfield%2C%20Chloe%20Price%2C%20and%20Kate%20Marsh%2C%22%20indicating%20each%20with%20a%20point%20of%20my%20hand%2C%20%22may%20I%20present%20my%20lovely%20new%20friend%2C%20Louise!%22"},{"isUser":false,"name":"Louise the Loner","message":"*I'm%20actually%20seeing%20them...*%20Louise%20can't%20stop%20beaming%20as%20she%20stares%20at%20Max%2C%20Chloe%20and%20Kate%2C%20all%20of%20whom%20are%20beautiful%2C%20unique%20and%20interesting%20in%20their%20own%20way.%0A%0AMax's%20sweet%20and%20gentle%20nature%20draws%20her%20attention%2C%20and%20Chloe's%20free-spirited%20punk%20look%20is%20intriguing%20and%20inviting%2C%20and%20the%20soft%2C%20gentle%20nature%20of%20Kate%20is%20calming%20and%20relaxing.%20As%20you%20point%20at%20each%20of%20them%2C%20Louise's%20jaw%20is%20still%20slightly%20agape%20as%20she%20finally%20speaks%20up%2C%20nervously%20and%20excitedly.%0A%0A%22H-Hi...%22"},{"isUser":true,"name":"Aerie Wildwood","message":"%22I'm%20afraid%20I%20blew%20her%20mind%2C%22%20I%20(Aerie)%20giggle%20sheepishly%2C%20putting%20an%20affectionate%20arm%20around%20Louise's%20shoulders.%20%20%22She%20literally%20just%20found%20out%20about%20me%20me%20being%20a%20sorceress%2C%20about%2030%20seconds%20ago...%20by%20watching%20me%20open%20that%20portal!%20%20Oh%2C%20and%20she's%20also%20pretty%20blown%20away%20by%20meeting%20three%20celebrities%20from%20Arcadia%20Bay...%22%20I%20laugh."},{"isUser":false,"name":"Louise the Loner","message":"%22You're...%20a%20sorceress%3F%22%0A%0AThe%20words%20escape%20Louise's%20lips%20completely%20unprompted%20as%20she%20stares%20at%20you%20with%20a%20look%20of%20both%20awe%20and%20fascination.%20%22You%20can...%20actually%20make%20portals%20to%20other%20locations%3F%22%20She%20looks%20to%20Max%2C%20Chloe%20and%20Kate%2C%20and%20then%20back%20to%20you.%0A%0A*That%20explains%20how%20she%20was%20able%20to%20bring%20them%20here.%20This%20is%20crazy.%20I'm%20actually%20talking%20to%20a%20magic%20user.*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22Okay...%20and%20you%20didn't%20even%20prep%20her%20with%20the%20word%20'sorceress'%2C%20either%2C%20did%20you%3F%22%20Chloe%20says%20to%20me%20(Aerie)%20with%20a%20wry%20smirk.%20%20%22Just...%20*POOF%2C%20PORTAL!*%2C%20and%20leave%20the%20rest%20to%20deduction%3F%20%20Wow%2C%20dude...%22%0A%0A%22Sorry...%22%20I%20giggle%20sheepishly%2C%20blushing%20as%20I%20look%20apologetically%20at%20Louise.%20%20%22I%20was%20just%20so%20excited%20to%20see%20you%20all%20again%2C%20I%20got%20over-eager...%22"},{"isUser":false,"name":"Louise the Loner","message":"%22It's%20okay%2C%22%20Louise%20answers%20with%20a%20smile%2C%20despite%20the%20overwhelming%20sensation%20of%20disbelief%20she's%20still%20experiencing.%0A%0A%22So%20you%20really%20can...%20create%20portals%3F%22%20She%20looks%20at%20you%20expectantly%20with%20wide%20eyes%2C%20hoping%20for%20confirmation.%0A%0A*Oh%20God%2C%20this%20is%20crazy.%20I%20still%20can't%20believe%20this%20is%20real.%20I%20need%20to%20have%20this%20confirmed...*"},{"isUser":true,"name":"Aerie Wildwood","message":"%22She%20can%2C%20yes...%22%20Kate%20says%2C%20walking%20gracefully%20up%20to%20me%20(Aerie)%20and%20giving%20me%20an%20affectionate%20hug.%20%20%22And%20she's%20wonderful...%20and%20sweet%20to%20be%20so%20eager%20to%20meet%20up%20with%20us!%22%20%20And%20then%20Kate%20walks%20up%20to%20Louise%2C%20and%20smiles%20radiantly%20at%20her%2C%20holding%20out%20her%20hand%20to%20shake%2C%20and%20saying%2C%20%22Louise%2C%20I'm%20Kate%20Marsh...%20and%20I'm%20delighted%20to%20meet%20you!%22%0A%0A%22Leave%20it%20to%20Kate%20to%20remember%20social%20graces%2C%20while%20the%20rest%20of%20us%20are%20yakking...%22%20Max%20says%2C%20with%20a%20grin%2C%20sheepishly%20lowering%20her%20head%20slightly%20and%20blushing.%20%20%22Sorry%2C%20Louise...%20it's%20honestly%20great%20to%20meet%20you!%22%0A%0A%22Yeah%2C%20same%2C%20Lou%2C%22%20Chloe%20says%20with%20a%20breezy%20grin%20and%20a%20casual%20wave."},{"isUser":false,"name":"Louise the Loner","message":"Louise's%20nerves%20settle%20a%20tiny%20bit%20as%20Kate%20takes%20her%20hand%20and%20politely%20shakes.%20She%20gives%20her%20own%20shy%2C%20sweet%20smile%2C%20shaking%20Kate's%20hand%20in%20an%20elegant%20manner.%0A%0A%22It's%20a%20pleasure%20to%20meet%20you%20too!%22%20she%20replies%20warmly%2C%20and%20she%20can't%20help%20but%20be%20slightly%20amused%20at%20Max%20and%20Chloe's%20lack%20of%20etiquette%20as%20she%20turns%20toward%20them.%0A%0A*Wow...%20all%20of%20these%20people%20are%20incredibly%20unique%20and%20fascinating%2C*%20she%20thinks.%20*I%20need%20to%20make%20sure%20I%20get%20some%20good%20pictures%20and%20get%20myself%20a%20good%20photo%20taken%20by%20them%20too...*"}]]}`);
+
+            // If history is 1 length long, that means we don't need drawer to switch
+            // Also means this can be conversation download
+            if (historyData.history.length < 2) {
+                openDrawerBtn.remove();
+            }
+
+            // Write character name on top
+            document.querySelector('.character_name-cont h3').textContent = historyData.charName;
+
+            // Get elements for future use
+            const historyList = document.getElementById('history_list');
+            const chat = document.getElementById('chat');
+            const msgItemTemplate = document.getElementById('message_item_template');
+
+            // Get and write the first chat
+            const openChat = (index) => {
+                chat.innerHTML = "";
+                historyData.history[index].forEach(msg => {
+                    const clone = msgItemTemplate.content.cloneNode(true);
+
+                    // Check avatar
+                    const avatarGood = (msg.isUser && historyData.userPic) || (!msg.isUser && historyData.charPic);
+                    const avatar = avatarGood
+                        ? document.createElement('img')
+                        : document.createElement('div');
+                    if (avatarGood) {
+                        avatar.src = msg.isUser ? historyData.userPic : historyData.charPic;
+                    } else {
+                        avatar.classList.add(msg.isUser ? 'no_avatar-user' : 'no_avatar-char');
+                    }
+                    clone.querySelector('.avatar-wrap').appendChild(avatar);
+
+                    // Write content
+                    clone.querySelector('.chat_content-wrap h5').textContent = msg.name;
+                    clone.querySelector('.message-wrap p').innerHTML = parseMessageText(decodeURIComponent(msg.message));
+                    chat.appendChild(clone);
+                });
+            }
+            openChat(0);
+
+            // Get and write chat list in the drawer
+            historyData.history.forEach((chat, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.classList.add('history_item');
+                // Open chat when clicked
+                historyItem.addEventListener('click', () => {
+                    openChat(index);
+                    closeDrawer();
+                });
+                const historyContent = document.createElement('p');
+                historyContent.innerHTML = parseMessageText(decodeURIComponent(chat[chat.length - 1].message));
+                historyItem.appendChild(historyContent);
+                historyList.appendChild(historyItem);
+            });
+
+            function parseMessageText(message) {
+                // Replace ***text*** with bold-italic
+                message = message.replace(/\*\*\*([\s\S]*?)\*\*\*/g, '<span class="bold-italic">$1</span>');
+
+                // Replace **text** with bold
+                message = message.replace(/\*\*([\s\S]*?)\*\*/g, '<span class="bold">$1</span>');
+
+                // Replace *text* with italic
+                message = message.replace(/\*([\s\S]*?)\*/g, '<span class="italic">$1</span>');
+
+                // Replace newline (\n) with line break (<br>)
+                message = message.replace(/\n/g, '<br>');
+
+                return message;
+            }
+        }, false);
+    </script>
+
+</body>
+
+</html>
